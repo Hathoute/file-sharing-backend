@@ -40,7 +40,6 @@ async function main() {
             t.timestamp("uploaded_at").notNullable().defaultTo(knex.fn.now());
             t.timestamp("downloaded_at").nullable();
             t.boolean("available").notNullable().defaultTo(true);
-
             t.primary(["id"]);
         });
 

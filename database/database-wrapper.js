@@ -30,16 +30,11 @@ class DatabaseWrapper {
     }
 
     saveFile(id, fileName, userId) {
-        this.#knex("files").insert({
+        return this.#knex("files").insert({
             id: id,
             filename: fileName,
             uploader_uid: userId,
-        })
-            .then((res) => {
-                console.log(res)
-            }, (err) => {
-                console.log(err)
-            })
+        });
     }
 
     selectById(id) {

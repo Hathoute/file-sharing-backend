@@ -50,8 +50,37 @@ router.get('/file/:fileId', function(req, res, next) {
                 });
             },
             (err) => {
-                console.log("Error: ", err);
-                res.status(404).end();
+                console.log("Error '" + req.route + "':", err);
+                res.status(500);
+                res.json({
+                    errorCode: "ERR_DB_UNKNOWN",
+                    errorString: "Unknown database error."
+                });
+            })
+});
+
+
+router.get('/user/:userId', function(req, res, next) {
+    dbWrapper.selectByUserId(req.params.userId)
+        .then((files) => {
+                // Exploded files to have control over returned data.
+                let data = files.map(f => ({
+                    id: f.id,
+                    filename: f.filename,
+                    uploaded_at: f.uploaded_at,
+                    downloaded_at: f.downloaded_at,
+                    available: f.available,
+                }));
+                res.status(200);
+                res.json(data);
+            },
+            (err) => {
+                console.log("Error '" + req.route + "':", err);
+                res.status(500);
+                res.json({
+                    errorCode: "ERR_DB_UNKNOWN",
+                    errorString: "Unknown database error."
+                });
             })
 });
 
@@ -63,18 +92,36 @@ router.post('/file', (req, res, next) => {
     let fileName;
     bb.on('file', (name, file, info) => {
         fileName = info.filename;
+        if(fileName.length > 64) {
+            res.status(400);
+            res.json({
+                errorCode: "ERR_FILENAME_LONG",
+                errorString: "The filename is too long (max allowed: 64 characters)."
+            });
+            return;
+        }
         file.pipe(fs.createWriteStream(tempSaveTo));
     });
+
     // TODO: Implement used ids using cookies...
     const userId = null;
 
     bb.on('close', () => {
         fs.renameSync(tempSaveTo, saveTo);
-        dbWrapper.saveFile(fileId, fileName, userId);
-        res.status(200);
-        res.set("Connection", "close");
-        res.json({fileId});
-        res.end();
+        dbWrapper.saveFile(fileId, fileName, userId)
+            .then((_) => {
+                res.status(200);
+                res.set("Connection", "close");
+                res.json({fileId});
+                res.end();
+            }, (err) => {
+                console.log("Error '" + req.route + "':", err);
+                res.status(500);
+                res.json({
+                    errorCode: "ERR_DB_UNKNOWN",
+                    errorString: "Unknown database error."
+                });
+            });
     });
 
     req.pipe(bb);

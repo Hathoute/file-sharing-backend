@@ -16,9 +16,13 @@ if(!fs.existsSync(saveDir)) {
     fs.mkdirSync(saveDir);
 }
 
-// TODO: Remember to remove this testing...
 router.get('/file', (req, res, next) => {
-    res.render('index');
+    if (req.app.get('env') === 'development') {
+        res.render('upload_form');
+    }
+    else {
+        res.status(404).end()
+    }
 })
 
 

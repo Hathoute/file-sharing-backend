@@ -1,32 +1,33 @@
 const Knex = require('knex');
+const configValidator = require("../config/config_validator");
+configValidator();
 
-// TODO: use data from config file
-const databaseName = "simple_file_sharing";
-const client = 'mysql';
+const config = require("../config/default.json");
+
 const connection = {
-    host : '127.0.0.1',
-    port : 3306,
-    user : 'root',
-    password : '',
+    host : config.database.host,
+    port : config.database.port,
+    user : config.database.user,
+    password : config.database.password,
 };
 
 async function main() {
     let knex = Knex({
-        client,
+        client: config.database.client,
         connection,
     });
 
 // Create database
-    console.log(`Recreating database "${databaseName}"...`);
-    await knex.raw("DROP DATABASE IF EXISTS ??", databaseName);
-    await knex.raw("CREATE DATABASE ??", databaseName);
+    console.log(`Recreating database "${config.database.database}"...`);
+    await knex.raw("DROP DATABASE IF EXISTS ??", config.database.database);
+    await knex.raw("CREATE DATABASE ??", config.database.database);
 
 // Database created, now use knex on it.
     knex = Knex({
-        client,
+        client: config.database.client,
         connection: {
             ...connection,
-            database: databaseName,
+            database: config.database.database,
         }
     })
 

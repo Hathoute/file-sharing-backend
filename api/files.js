@@ -1,18 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const dbWrapper = require('../database/database-wrapper');
+const config = require("../config/default.json")
 
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const busboy = require('busboy');
 
-// TODO: Grab dest directory from config file.
-const saveDir = path.join(__dirname, "../uploads");
+let saveDir = config.uploads.path;
+if(!path.isAbsolute(saveDir)) {
+    saveDir = path.join(__dirname, "..", saveDir);
+}
 if(!fs.existsSync(saveDir)) {
     fs.mkdirSync(saveDir);
 }
-const maxSize = 20e6;        // Size in bytes
 
 // TODO: Remember to remove this testing...
 router.get('/file', (req, res, next) => {
@@ -86,7 +88,7 @@ router.get('/user/:userId', function(req, res, next) {
 });
 
 router.post('/file', (req, res, next) => {
-    const bb = busboy({ headers: req.headers, limits: { files: 1, fileSize: maxSize } });
+    const bb = busboy({ headers: req.headers, limits: { files: 1, fileSize: config.uploads.max_size } });
     const fileId = makeId(10);
     const tempSaveTo = path.join(os.tmpdir(), fileId);
     const saveTo = path.join(saveDir, fileId);
@@ -99,11 +101,11 @@ router.post('/file', (req, res, next) => {
         });
 
         fileName = info.filename;
-        if(fileName.length > 64) {
+        if(fileName.length > config.uploads.max_name_length) {
             res.status(400);
             res.json({
                 errorCode: "ERR_FILENAME_LONG",
-                errorString: "The filename is too long (max allowed: 64 characters)."
+                errorString: `The filename is too long (max allowed: ${config.uploads.max_name_length} characters).`
             });
             return;
         }
@@ -118,7 +120,7 @@ router.post('/file', (req, res, next) => {
             res.status(400);
             res.json({
                 errorCode: "ERR_FILE_TOO_BIG",
-                errorString: `The file is too big (max allowed: ${maxSize} bytes).`
+                errorString: `The file is too big (max allowed: ${config.uploads.max_size} bytes).`
             });
             return;
         }

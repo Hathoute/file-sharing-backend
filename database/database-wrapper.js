@@ -1,33 +1,21 @@
 const Knex = require('knex');
+const config = require('../config/default.json')
 
-// TODO: use data from config file
-const databaseName = "simple_file_sharing";
-const client = 'mysql';
 const connection = {
-    host : '127.0.0.1',
-    port : 3306,
-    user : 'root',
-    password : '',
+    host : config.database.host,
+    port : config.database.port,
+    user : config.database.user,
+    password : config.database.password,
 };
 
 class DatabaseWrapper {
     #knex = Knex({
-        client,
+        client: config.database.client,
         connection: {
             ...connection,
-            database: databaseName,
+            database: config.database.database,
         }
     });
-
-    constructor() {
-        this.#knex = Knex({
-                client,
-                connection: {
-                    ...connection,
-                    database: databaseName,
-                }
-            });
-    }
 
     saveFile(id, fileName, userId) {
         return this.#knex("files").insert({

@@ -63,6 +63,37 @@ router.get('/file/:fileId', function(req, res, next) {
 });
 
 
+router.get('/fileInfo/:fileId', function(req, res, next) {
+    dbWrapper.selectById(req.params.fileId)
+        .then((f) => {
+                if(f === undefined) {
+                    // 404: NOTFOUND
+                    res.status(404).end();
+                    return;
+                }
+
+                // Exploded files to have control over returned data.
+                let data = {
+                    id: f.id,
+                    filename: f.filename,
+                    uploaded_at: f.uploaded_at,
+                    downloaded_at: f.downloaded_at,
+                    available: f.available,
+                };
+                res.status(200);
+                res.json(data);
+            },
+            (err) => {
+                console.log("Error '" + req.route + "':", err);
+                res.status(500);
+                res.json({
+                    errorCode: "ERR_DB_UNKNOWN",
+                    errorString: "Unknown database error."
+                });
+            })
+});
+
+
 router.get('/user/:userId', function(req, res, next) {
     dbWrapper.selectByUserId(req.params.userId)
         .then((files) => {

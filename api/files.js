@@ -12,6 +12,7 @@ const saveDir = path.join(__dirname, "../uploads");
 if(!fs.existsSync(saveDir)) {
     fs.mkdirSync(saveDir);
 }
+const maxSize = 20e6;        // Size in bytes
 
 // TODO: Remember to remove this testing...
 router.get('/file', (req, res, next) => {
@@ -85,12 +86,18 @@ router.get('/user/:userId', function(req, res, next) {
 });
 
 router.post('/file', (req, res, next) => {
-    const bb = busboy({ headers: req.headers });
+    const bb = busboy({ headers: req.headers, limits: { files: 1, fileSize: maxSize } });
     const fileId = makeId(10);
     const tempSaveTo = path.join(os.tmpdir(), fileId);
     const saveTo = path.join(saveDir, fileId);
     let fileName;
+    let limit = false;
+
     bb.on('file', (name, file, info) => {
+        file.on('limit', function(data) {
+            limit = true;
+        });
+
         fileName = info.filename;
         if(fileName.length > 64) {
             res.status(400);
@@ -107,6 +114,15 @@ router.post('/file', (req, res, next) => {
     const userId = null;
 
     bb.on('close', () => {
+        if(limit) {
+            res.status(400);
+            res.json({
+                errorCode: "ERR_FILE_TOO_BIG",
+                errorString: `The file is too big (max allowed: ${maxSize} bytes).`
+            });
+            return;
+        }
+
         fs.renameSync(tempSaveTo, saveTo);
         dbWrapper.saveFile(fileId, fileName, userId)
             .then((_) => {

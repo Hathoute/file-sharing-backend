@@ -81,6 +81,7 @@ router.get('/fileInfo/:fileId', function(req, res, next) {
                 let data = {
                     id: f.id,
                     filename: f.filename,
+                    size: f.size,
                     uploaded_at: f.uploaded_at,
                     downloaded_at: f.downloaded_at,
                     available: f.available,
@@ -106,6 +107,7 @@ router.get('/user/:userId', function(req, res, next) {
                 let data = files.map(f => ({
                     id: f.id,
                     filename: f.filename,
+                    size: f.size,
                     uploaded_at: f.uploaded_at,
                     downloaded_at: f.downloaded_at,
                     available: f.available,

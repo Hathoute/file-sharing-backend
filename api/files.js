@@ -7,6 +7,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const busboy = require('busboy');
+const meter = require('stream-meter')
 
 let saveDir = config.uploads.path;
 if(!path.isAbsolute(saveDir)) {
@@ -124,6 +125,7 @@ router.get('/user/:userId', function(req, res, next) {
 
 router.post('/file', (req, res, next) => {
     const bb = busboy({ headers: req.headers, limits: { files: 1, fileSize: config.uploads.max_size } });
+    const m = meter();
     const fileId = makeId(10);
     const tempSaveTo = path.join(os.tmpdir(), fileId);
     const saveTo = path.join(saveDir, fileId);
@@ -144,7 +146,7 @@ router.post('/file', (req, res, next) => {
             });
             return;
         }
-        file.pipe(fs.createWriteStream(tempSaveTo));
+        file.pipe(m).pipe(fs.createWriteStream(tempSaveTo));
     });
 
     // TODO: Implement used ids using cookies...
@@ -161,7 +163,7 @@ router.post('/file', (req, res, next) => {
         }
 
         fs.renameSync(tempSaveTo, saveTo);
-        dbWrapper.saveFile(fileId, fileName, userId)
+        dbWrapper.saveFile(fileId, fileName, m.bytes, userId)
             .then((_) => {
                 res.status(200);
                 res.set("Connection", "close");

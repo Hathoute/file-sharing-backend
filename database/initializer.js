@@ -37,6 +37,7 @@ async function main() {
         .createTable("files", t => {
             t.string("id").notNullable();
             t.string("filename").notNullable();
+            t.bigint("size").notNullable();
             t.string("uploader_uid").nullable();
             t.timestamp("uploaded_at").notNullable().defaultTo(knex.fn.now());
             t.timestamp("downloaded_at").nullable();

@@ -17,10 +17,11 @@ class DatabaseWrapper {
         }
     });
 
-    saveFile(id, fileName, userId) {
+    saveFile(id, fileName, size, userId) {
         return this.#knex("files").insert({
             id: id,
             filename: fileName,
+            size: size,
             uploader_uid: userId,
         });
     }

@@ -1,7 +1,24 @@
 {
   "name": "file-sharing-backend",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "A very simple file sharing backend using Express.js",
+  "keywords": [
+    "upload",
+    "download",
+    "backend"
+  ],
+  "homepage": "https://github.com/Hathoute/file-sharing-backend",
+  "bugs": {
+    "url": "https://github.com/Hathoute/file-sharing-backend/issues",
+    "email": "hathoutehamza@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hathoute/file-sharing-backend.git"
+  },
+  "author": "Hamza Hathoute <hathoutehamza@gmail.com> (hathoute.com)",
+  "license": "MIT",
+  "private": false,
   "scripts": {
     "start": "node ./bin/www",
     "db-initialize": "node ./database/initializer.js"

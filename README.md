@@ -44,6 +44,10 @@ You can easily configure the backend without having to alter any javascript file
 
 Locate **config/default.json** and adapt it to whatever you need.
 
+## API
+
+You can view the API [here](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/Hathoute/file-sharing-backend/master/openapi.yaml#/)
+
 ## Built With
 
 - [Express.js](https://expressjs.com/fr/)

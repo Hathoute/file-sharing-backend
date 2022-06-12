@@ -82,8 +82,8 @@ router.get('/fileInfo/:fileId', function(req, res, next) {
                     id: f.id,
                     filename: f.filename,
                     size: f.size,
-                    uploaded_at: f.uploaded_at,
-                    downloaded_at: f.downloaded_at,
+                    uploaded_at: f.uploaded_at/1000,
+                    downloaded_at: f.downloaded_at/1000,
                     available: f.available,
                 };
                 res.status(200);
@@ -108,8 +108,8 @@ router.get('/user/:userId', function(req, res, next) {
                     id: f.id,
                     filename: f.filename,
                     size: f.size,
-                    uploaded_at: f.uploaded_at,
-                    downloaded_at: f.downloaded_at,
+                    uploaded_at: f.uploaded_at/1000,
+                    downloaded_at: f.downloaded_at/1000,
                     available: f.available,
                 }));
                 res.status(200);

@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: File sharing backend
+  description: A simple API to share files with minimal constraints.
+  contact:
+    name: Hamza Hathoute
+    url: "https://hathoute.com"
+    email: "hathoutehamza@gmail.com"
+
+tags:
+  - name: Development
+    description: Debugging utilities
+  - name: Files
+    description: Operations for Files
+
+paths:
+  /file:
+    get:
+      tags:
+        - Development
+      description: | 
+        (Development environment only)
+        
+        Loads a view with a form to test uploading.
+      responses:
+        '200':
+          description: Successfully loaded the view.
+    post:
+      tags:
+        - Files
+      description: Uploads the form file and returns a file identifier.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Successfully uploaded the file.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+                    description: Uploaded file unique identifier.
+        '400':
+          description: Client error when uploading the file.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    description: Error code.
+                    example: ERR_FILE_TOO_BIG
+                  errorString:
+                    type: string
+                    description: Detailed error.
+                    example: "The file is too big (max allowed: 20000000 bytes)."
+        '500':
+          description: Unknown database error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    description: Error code.
+                  errorString:
+                    type: string
+                    description: Detailed error.
+
+  /file/{fileId}:
+    get:
+      tags:
+        - Files
+      description: Downloads the file specified by fileId.
+      parameters:
+        - name: fileId
+          in: path
+          description: File unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully downloading the file.
+        '404':
+          description: FileId not bound to any file.
+        '410':
+          description: File is no more available for download.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  downloadedAt:
+                    type: number
+                    description: Last download timestamp.
+                    example: 1655060601
+        '500':
+          description: Unknown database error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    description: Error code.
+                  errorString:
+                    type: string
+                    description: Detailed error.
+
+  /fileInfo/{fileId}:
+    get:
+      tags:
+        - Files
+      description: Returns info about a file.
+      parameters:
+        - name: fileId
+          in: path
+          description: File unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully returned the info about the file.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: File identifier.
+                  filename:
+                    type: string
+                    description: File name as uploaded by the user.
+                  size:
+                    type: integer
+                    description: File size in bytes.
+                  uploaded_at:
+                    type: number
+                    description: Upload timestamp.
+                  downloaded_at:
+                    type: number
+                    description: Download timestamp, or 0 if not yet downloaded.
+                  available:
+                    type: boolean
+                    description: Whether file is available to download.
+
+        '404':
+          description: FileId not bound to any file.
+        '500':
+          description: Unknown database error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    description: Error code.
+                  errorString:
+                    type: string
+                    description: Detailed error.

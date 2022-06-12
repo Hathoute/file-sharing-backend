@@ -140,6 +140,14 @@ router.post('/file', (req, res, next) => {
         });
 
         fileName = info.filename;
+        if(fileName === undefined) {
+            res.status(400);
+            res.json({
+                errorCode: "ERR_NO_FILE",
+                errorString: "Attempting to POST with no file (filename not detected)."
+            });
+            return;
+        }
         if(fileName.length > config.uploads.max_name_length) {
             res.status(400);
             res.json({

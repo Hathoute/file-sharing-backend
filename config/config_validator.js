@@ -5,6 +5,9 @@ const hierarchy = {
         "host": "string",
         "port": "number",
     },
+    "api": {
+        "base_path": "string",
+    },
     "database": {
         "host": "string",
         "port": "number",

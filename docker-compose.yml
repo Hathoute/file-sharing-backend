@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  file-sharing-backend:
+    image: "hathoute/file-sharing-backend"
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uploads:/app/uploads        # Mount directory ./uploads to /app/uploads inside the container
+    environment:
+      NODE_ENV: production            # We want to make sure we use node optimizations.
+      DB_HOST: host.docker.internal   # Access host mysql database
+      API_BASE_PATH: /api/files       # API Base path (eg. http://host:port/api/files)

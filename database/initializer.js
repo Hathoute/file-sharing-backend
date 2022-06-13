@@ -1,8 +1,8 @@
 const Knex = require('knex');
-const configValidator = require("../config/config_validator");
-configValidator();
+const { validateConfig } = require("../config/config-manager");
+validateConfig();
 
-const config = require("../config/default.json");
+const { config } = require('../config/config-manager');
 
 const connection = {
     host : config.database.host,

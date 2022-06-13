@@ -11,7 +11,7 @@ var http = require('http');
 /**
  * Use config for host/port definitions.
  */
-const config = require("../config/default.json")
+const { config } = require('../config/config-manager');
 
 /**
  * Get port from environment and store in Express.

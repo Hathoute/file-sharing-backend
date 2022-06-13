@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const dbWrapper = require('../database/database-wrapper');
-const config = require("../config/default.json")
+const { config } = require('../config/config-manager');
 
 const os = require('os');
 const path = require('path');
@@ -172,7 +172,8 @@ router.post('/file', (req, res, next) => {
             return;
         }
 
-        fs.renameSync(tempSaveTo, saveTo);
+        fs.copyFileSync(tempSaveTo, saveTo);
+        fs.rmSync(tempSaveTo);
         dbWrapper.saveFile(fileId, fileName, m.bytes, userId)
             .then((_) => {
                 res.status(200);

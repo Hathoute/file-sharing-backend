@@ -1,5 +1,5 @@
 const Knex = require('knex');
-const config = require('../config/default.json')
+const { config } = require('../config/config-manager');
 
 const connection = {
     host : config.database.host,

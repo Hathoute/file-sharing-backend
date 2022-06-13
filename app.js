@@ -6,9 +6,8 @@ const cors = require('cors');
 
 const apiRouter = require('./api/files');
 
-const configValidator = require("./config/config_validator");
-configValidator();
-const config = require("./config/default.json");
+const { validateConfig, config } = require("./config/config-manager");
+validateConfig();
 
 const app = express();
 

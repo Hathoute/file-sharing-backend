@@ -1,4 +1,43 @@
-const config = require("./default.json");
+let config = require("./default.json");
+
+const dockerBindings = {
+    "server": {
+        "host": "SERVER_HOST",
+        "port": "SERVER_PORT",
+    },
+    "api": {
+        "base_path": "API_BASE_PATH",
+    },
+    "database": {
+        "host": "DB_HOST",
+        "port": "DB_PORT",
+        "user": "DB_USER",
+        "password": "DB_PASSWORD",
+        "database": "DB_NAME",
+    },
+    "uploads": {
+        "path": "UPLOAD_PATH",
+        "max_name_length": "MAX_NAME_LEN",
+        "max_size": "MAX_FILE_SIZE",
+    },
+};
+
+function buildConfigFromDocker(config, bindings) {
+    // We prioritize environment variables when running on docker
+    for (const binding in bindings) {
+        let child = bindings[binding];
+        if (typeof (child) === "string") {
+            if (process.env[child]) {
+                config[binding] = process.env[child];
+            }
+        } else {
+            if(config[binding] === undefined) {
+                config[binding] = {};
+            }
+            buildConfigFromDocker(config[binding], child);
+        }
+    }
+}
 
 const hierarchy = {
     "server": {
@@ -43,6 +82,11 @@ function checkHierarchy(scope, obj, tree) {
         }
 
         if (!hasChildren) {
+            if(typeof(obj[attr]) === "string" && tree[attr] === "number"
+                && !isNaN(Number(obj[attr]))) {
+                obj[attr] = Number(obj[attr]);
+            }
+
             if(typeof(obj[attr]) !== tree[attr]) {
                 // Attribute not present in config file
                 throwValidationError(fullname, `Attribute type mismatch (expecting ${tree[attr]}, ` +
@@ -59,4 +103,8 @@ function validateConfig() {
     checkHierarchy("", config, hierarchy);
 }
 
-module.exports = () => validateConfig();
+if(process.env.IN_DOCKER) {
+    buildConfigFromDocker(config, dockerBindings);
+}
+
+module.exports = {config, validateConfig};
